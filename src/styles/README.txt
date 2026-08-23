@@ -1,0 +1,1 @@
+App-wide production styles are centralized in src/App.css to keep integration simple. This folder is retained for future section-specific style modules.

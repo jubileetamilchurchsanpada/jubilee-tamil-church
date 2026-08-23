@@ -1,0 +1,69 @@
+/* =====================================================
+   WEEKLY GATHERINGS - NO CALENDAR DATES
+===================================================== */
+
+.weekly-event-stack {
+  gap: 14px;
+}
+
+.weekly-event-row {
+  grid-template-columns: 130px 150px 1fr 56px;
+}
+
+.event-day {
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding-right: 18px;
+  border-right: 1px solid var(--line);
+  color: var(--blue-900);
+  text-align: center;
+}
+
+.event-day svg {
+  color: var(--gold);
+}
+
+.event-day span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.weekly-event-row .event-info p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 680px) {
+  .weekly-event-row {
+    grid-template-columns: 90px 1fr 42px;
+  }
+
+  .weekly-event-row > img {
+    display: none;
+  }
+
+  .event-day {
+    min-height: 86px;
+    padding-right: 10px;
+  }
+
+  .event-day span {
+    font-size: 9px;
+  }
+
+  .weekly-event-row .event-info h3 {
+    font-size: 22px;
+  }
+
+  .weekly-event-row .event-info p {
+    font-size: 11px;
+  }
+}
