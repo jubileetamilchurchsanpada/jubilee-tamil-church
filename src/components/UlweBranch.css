@@ -69,79 +69,101 @@
   color: var(--gold);
 }
 
-.ulwe-map-card {
-  margin-top: 30px;
+.ulwe-footer-branch {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  padding: 26px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 3px solid var(--gold);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.055), rgba(215, 173, 83, 0.045));
 }
 
-.ulwe-map-card .map-info h2 {
-  font-size: clamp(40px, 4vw, 58px);
-}
-
-.ulwe-address {
+.ulwe-footer-kicker {
   display: block;
-  max-width: 310px;
-  color: rgba(255, 255, 255, 0.74);
-  font-size: 13px;
-  line-height: 1.55;
-}
-
-.ulwe-founded {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-}
-
-.ulwe-founded svg {
-  color: var(--gold);
-  flex: 0 0 auto;
-}
-
-.ulwe-founded span,
-.ulwe-service-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.ulwe-founded strong,
-.ulwe-service-copy strong {
-  color: white;
-  font-size: 11px;
-  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+  color: var(--gold-2);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.17em;
   text-transform: uppercase;
 }
 
-.ulwe-founded small,
-.ulwe-service-copy small {
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 13px;
+.ulwe-footer-branch h3 {
+  margin: 0 0 16px;
+  color: white;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 29px;
+  font-weight: 600;
 }
 
-.ulwe-map-preview .map-label {
-  min-width: 300px;
+.ulwe-footer-address {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  color: rgba(255, 255, 255, 0.72) !important;
+  font-size: 13px !important;
+  line-height: 1.6;
+}
+
+.ulwe-footer-address svg {
+  width: 18px;
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--gold);
+}
+
+.ulwe-footer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-top: 17px;
+}
+
+.ulwe-footer-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 12px;
+}
+
+.ulwe-footer-meta svg {
+  width: 16px;
+  color: var(--gold);
+}
+
+.ulwe-footer-map-link {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  color: var(--gold-2) !important;
+  font-size: 10px !important;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ulwe-footer-map-link svg {
+  width: 15px;
 }
 
 @media (max-width: 800px) {
-  .ulwe-map-card {
-    margin-top: 20px;
-  }
-
-  .ulwe-story-note {
+  .ulwe-story-note,
+  .ulwe-footer-branch {
     padding: 21px 20px;
-  }
-
-  .ulwe-map-preview .map-label {
-    min-width: 0;
   }
 }
 
 @media (max-width: 520px) {
-  .ulwe-story-meta {
+  .ulwe-story-meta,
+  .ulwe-footer-meta {
     display: grid;
     gap: 12px;
   }
 
-  .ulwe-story-note h3 {
+  .ulwe-story-note h3,
+  .ulwe-footer-branch h3 {
     font-size: 27px;
   }
 }
