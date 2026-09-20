@@ -1,0 +1,147 @@
+.ulwe-story-note {
+  margin-top: 32px;
+  padding: 24px 26px;
+  border: 1px solid rgba(9, 31, 86, 0.12);
+  border-left: 3px solid var(--gold);
+  background: linear-gradient(135deg, rgba(215, 173, 83, 0.08), rgba(7, 31, 92, 0.03));
+  box-shadow: 0 14px 38px rgba(3, 18, 59, 0.06);
+}
+
+.ulwe-story-kicker {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ulwe-story-note h3 {
+  margin: 0 0 12px;
+  color: var(--blue-950);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 30px;
+  line-height: 1.05;
+}
+
+.ulwe-story-note p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.ulwe-story-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 22px;
+  margin-top: 18px;
+}
+
+.ulwe-story-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--blue-900);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ulwe-story-meta svg {
+  width: 17px;
+  color: var(--gold);
+}
+
+.ulwe-story-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--blue-900);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ulwe-story-link svg {
+  width: 16px;
+  color: var(--gold);
+}
+
+.ulwe-map-card {
+  margin-top: 30px;
+}
+
+.ulwe-map-card .map-info h2 {
+  font-size: clamp(40px, 4vw, 58px);
+}
+
+.ulwe-address {
+  display: block;
+  max-width: 310px;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.ulwe-founded {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.ulwe-founded svg {
+  color: var(--gold);
+  flex: 0 0 auto;
+}
+
+.ulwe-founded span,
+.ulwe-service-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ulwe-founded strong,
+.ulwe-service-copy strong {
+  color: white;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ulwe-founded small,
+.ulwe-service-copy small {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+}
+
+.ulwe-map-preview .map-label {
+  min-width: 300px;
+}
+
+@media (max-width: 800px) {
+  .ulwe-map-card {
+    margin-top: 20px;
+  }
+
+  .ulwe-story-note {
+    padding: 21px 20px;
+  }
+
+  .ulwe-map-preview .map-label {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .ulwe-story-meta {
+    display: grid;
+    gap: 12px;
+  }
+
+  .ulwe-story-note h3 {
+    font-size: 27px;
+  }
+}
