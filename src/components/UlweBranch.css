@@ -69,101 +69,74 @@
   color: var(--gold);
 }
 
-.ulwe-footer-branch {
-  grid-column: 1 / -1;
-  margin-top: 8px;
-  padding: 26px 28px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-left: 3px solid var(--gold);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.055), rgba(215, 173, 83, 0.045));
+.sanpada-suffix,
+.sanpada-inline-suffix {
+  white-space: nowrap;
 }
 
-.ulwe-footer-kicker {
+.ulwe-map-host {
+  background: #f5f6fa;
+}
+
+.ulwe-map-section {
+  padding-top: 0 !important;
+}
+
+.ulwe-map-card {
+  box-shadow: 0 25px 70px rgba(3, 18, 59, 0.12);
+}
+
+.ulwe-map-card .map-info {
+  background: linear-gradient(145deg, #071f5c, #164aab);
+}
+
+.ulwe-map-card .map-info h2 {
+  font-size: clamp(42px, 4vw, 62px);
+}
+
+.ulwe-address {
   display: block;
-  margin-bottom: 8px;
-  color: var(--gold-2);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.17em;
-  text-transform: uppercase;
+  max-width: 330px;
+  line-height: 1.55;
 }
 
-.ulwe-footer-branch h3 {
-  margin: 0 0 16px;
-  color: white;
-  font-family: "Cormorant Garamond", serif;
-  font-size: 29px;
-  font-weight: 600;
+.ulwe-map-preview {
+  background:
+    linear-gradient(90deg, rgba(8, 59, 118, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(8, 59, 118, 0.05) 1px, transparent 1px),
+    #e8edf3;
+  background-size: 34px 34px;
 }
 
-.ulwe-footer-address {
-  display: flex;
-  align-items: flex-start;
-  gap: 11px;
-  color: rgba(255, 255, 255, 0.72) !important;
-  font-size: 13px !important;
-  line-height: 1.6;
-}
-
-.ulwe-footer-address svg {
-  width: 18px;
-  flex: 0 0 auto;
-  margin-top: 2px;
-  color: var(--gold);
-}
-
-.ulwe-footer-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 24px;
-  margin-top: 17px;
-}
-
-.ulwe-footer-meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 12px;
-}
-
-.ulwe-footer-meta svg {
-  width: 16px;
-  color: var(--gold);
-}
-
-.ulwe-footer-map-link {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 8px;
-  margin-top: 18px;
-  color: var(--gold-2) !important;
-  font-size: 10px !important;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.ulwe-footer-map-link svg {
-  width: 15px;
+.ulwe-map-preview .map-label {
+  min-width: 300px;
 }
 
 @media (max-width: 800px) {
-  .ulwe-story-note,
-  .ulwe-footer-branch {
+  .ulwe-story-note {
     padding: 21px 20px;
+  }
+
+  .ulwe-map-section {
+    padding-top: 0 !important;
+  }
+
+  .ulwe-map-preview .map-label {
+    min-width: 0;
   }
 }
 
 @media (max-width: 520px) {
-  .ulwe-story-meta,
-  .ulwe-footer-meta {
+  .ulwe-story-meta {
     display: grid;
     gap: 12px;
   }
 
-  .ulwe-story-note h3,
-  .ulwe-footer-branch h3 {
+  .ulwe-story-note h3 {
     font-size: 27px;
+  }
+
+  .sanpada-suffix {
+    white-space: normal;
   }
 }
