@@ -43,12 +43,12 @@ export default function UlweBranch() {
       <h3>Jubilee Tamil Church – Ulwe</h3>
       <p>
         As the Jubilee family continued to grow, the Ulwe branch was founded on
-        <strong> 14 September 2023</strong>, extending the church's ministry of
+        <strong> 11 September 2022</strong>, extending the church's ministry of
         worship, prayer, fellowship and the Word to families in and around Ulwe.
       </p>
 
       <div className="ulwe-story-meta">
-        <span><CalendarDays /> Founded 14 September 2023</span>
+        <span><CalendarDays /> Founded 11 September 2022</span>
         <span><Clock3 /> Sunday Service: 8:00 AM – 9:30 AM</span>
       </div>
 
@@ -102,7 +102,7 @@ export default function UlweBranch() {
                 <CalendarDays />
                 <span>
                   <strong>Founded</strong>
-                  <span className="detail-value">14 September 2023</span>
+                  <span className="detail-value">11 September 2022</span>
                 </span>
               </div>
             </div>
