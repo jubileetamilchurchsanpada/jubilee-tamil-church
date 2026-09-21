@@ -1,0 +1,18 @@
+.jubilee-coming-art{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px;color:white;overflow:hidden;background:linear-gradient(145deg,#03123b,#0b327c)}
+.jubilee-coming-art:before,.jubilee-coming-art:after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(242,211,140,.28)}
+.jubilee-coming-art:before{width:250px;height:250px;right:-90px;top:-90px}
+.jubilee-coming-art:after{width:180px;height:180px;left:-70px;bottom:-70px}
+.jubilee-coming-art .coming-icon{font-family:"Cormorant Garamond",serif;font-size:54px;line-height:1;color:#f2d38c;position:relative;z-index:1}
+.jubilee-coming-art strong{position:relative;z-index:1;margin-top:12px;font-family:"Cormorant Garamond",serif;font-size:29px;font-weight:600}
+.jubilee-coming-art small{position:relative;z-index:1;margin-top:8px;font-size:9px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#d7ad53}
+.jubilee-coming-art.harvest{background:radial-gradient(circle at 25% 20%,rgba(215,173,83,.28),transparent 24%),linear-gradient(145deg,#142e1d,#70521d)}
+.jubilee-coming-art.vbs{background:radial-gradient(circle at 80% 15%,rgba(242,211,140,.22),transparent 24%),linear-gradient(145deg,#071f5c,#164aab)}
+.jubilee-coming-art.youth{background:radial-gradient(circle at 20% 80%,rgba(215,173,83,.22),transparent 26%),linear-gradient(145deg,#25104e,#0b2f7a)}
+.jubilee-coming-art.palm{background:radial-gradient(circle at 82% 20%,rgba(255,255,255,.12),transparent 24%),linear-gradient(145deg,#153d24,#0b2f50)}
+.jubilee-coming-art.newyear{background:radial-gradient(circle at center,rgba(215,173,83,.25),transparent 34%),linear-gradient(145deg,#03081c,#102c68)}
+.jubilee-viewer-coming-art{width:min(680px,90vw);min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:42px;background:radial-gradient(circle at 50% 20%,rgba(215,173,83,.2),transparent 32%),linear-gradient(145deg,#071f5c,#03123b);border:1px solid rgba(215,173,83,.35);box-shadow:0 25px 90px rgba(0,0,0,.35)}
+.jubilee-viewer-coming-art span{color:#f2d38c;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+.jubilee-viewer-coming-art h4{margin:14px 0 10px;font-family:"Cormorant Garamond",serif;font-size:clamp(38px,6vw,62px);font-weight:600}
+.jubilee-viewer-coming-art p{max-width:520px;margin:0;color:rgba(255,255,255,.65);line-height:1.7}
+.jubilee-album-image img.drive-photo{background:#e9edf4}
+@media(max-width:600px){.jubilee-viewer-coming-art{min-height:300px;padding:28px}.jubilee-coming-art .coming-icon{font-size:44px}}
