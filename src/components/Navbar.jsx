@@ -56,7 +56,7 @@ export default function Navbar() {
             </button>
           ))}
 
-          <a href="/?admin=1" className="admin-nav-link">
+          <a href="/admin" className="admin-nav-link">
             <LockKeyhole size={14} />
             Admin
           </a>
@@ -85,7 +85,7 @@ export default function Navbar() {
               </button>
             ))}
 
-            <a href="/?admin=1" className="mobile-admin-link">
+            <a href="/admin" className="mobile-admin-link">
               <LockKeyhole size={15} />
               Admin Login
             </a>
