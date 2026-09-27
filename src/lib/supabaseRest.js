@@ -1,6 +1,7 @@
 const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL || "").replace(/\/$/, "");
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 const SESSION_KEY = "jtc_supabase_session_v1";
+export const JTC_ADMIN_EMAIL = "jubileetamilchurchsanpada@gmail.com";
 
 export function isSupabaseConfigured() {
   return Boolean(SUPABASE_URL && SUPABASE_KEY);
@@ -48,6 +49,22 @@ export async function signInWithPassword(email, password) {
     body: JSON.stringify({ email, password }),
   });
   return saveSession(data);
+}
+
+export async function signUpAdmin(email, password) {
+  if (!isSupabaseConfigured()) throw new Error("Secure admin database is not configured yet.");
+  const normalized = email.trim().toLowerCase();
+  if (normalized !== JTC_ADMIN_EMAIL) {
+    throw new Error("Only the authorized Jubilee Tamil Church admin email can create the admin account.");
+  }
+
+  const data = await authRequest("/auth/v1/signup", {
+    method: "POST",
+    body: JSON.stringify({ email: normalized, password }),
+  });
+
+  if (data.access_token) saveSession(data);
+  return data;
 }
 
 async function getAccessToken() {
