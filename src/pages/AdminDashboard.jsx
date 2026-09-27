@@ -10,13 +10,14 @@ import {
   Users,
 } from "lucide-react";
 import churchLogo from "../assets/logo.png";
+import { getStoredSession, signOut } from "../lib/supabaseRest";
 import "../styles/AdminPortal.css";
 
 export default function AdminDashboard() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem("jtc_admin_session") !== "1") {
+    if (!getStoredSession()?.access_token) {
       window.location.replace("/admin");
     }
   }, []);
@@ -36,8 +37,8 @@ export default function AdminDashboard() {
     }
   };
 
-  const logout = () => {
-    sessionStorage.removeItem("jtc_admin_session");
+  const logout = async () => {
+    await signOut();
     window.location.href = "/admin";
   };
 
@@ -64,11 +65,9 @@ export default function AdminDashboard() {
 
       <section className="jtc-admin-dashboard-hero">
         <div>
-          <span className="jtc-admin-kicker"><ShieldCheck size={16} /> ADMIN ACCESS</span>
+          <span className="jtc-admin-kicker"><ShieldCheck size={16} /> SECURE ADMIN ACCESS</span>
           <h1>Church Administration</h1>
-          <p>
-            Manage church reminders and use the ceremonial website launch screen from one place.
-          </p>
+          <p>Manage private church reminders and administration tools from one place.</p>
         </div>
       </section>
 
@@ -77,9 +76,7 @@ export default function AdminDashboard() {
           <div className="jtc-admin-tool-icon"><Users /></div>
           <span className="jtc-admin-card-label">MEMBERS & CELEBRATIONS</span>
           <h2>JTC Reminder App</h2>
-          <p>
-            Manage birthdays and wedding anniversaries and see celebrations coming up in the next 30 days.
-          </p>
+          <p>Manage birthdays and wedding anniversaries and see celebrations coming up in the next 30 days.</p>
           <div className="jtc-admin-card-tags">
             <span><CalendarHeart size={14} /> Birthdays</span>
             <span><CalendarHeart size={14} /> Anniversaries</span>
@@ -87,18 +84,14 @@ export default function AdminDashboard() {
           <a href="/admin/reminders" className="jtc-admin-primary-btn">
             Open JTC Reminder App <ExternalLink size={17} />
           </a>
-          <small className="jtc-admin-note">
-            Member data is intentionally kept out of the public GitHub repository.
-          </small>
+          <small className="jtc-admin-note">Member records are stored in the authenticated private database, not in GitHub.</small>
         </article>
 
         <article className="jtc-admin-tool-card jtc-admin-tool-launch">
           <div className="jtc-admin-tool-icon"><PartyPopper /></div>
           <span className="jtc-admin-card-label">CEREMONIAL WEBSITE LAUNCH</span>
           <h2>Priest “Go Live” Button</h2>
-          <p>
-            Give this link to the priest. One tap opens the launch screen; pressing GO LIVE starts a 5-to-1 countdown followed by balloons and confetti.
-          </p>
+          <p>Give this link to the priest. One tap opens the launch screen; pressing GO LIVE starts a 5-to-1 countdown followed by balloons and confetti.</p>
 
           <div className="jtc-launch-link-box">
             <span>{launchLink}</span>
@@ -107,12 +100,7 @@ export default function AdminDashboard() {
             </button>
           </div>
 
-          <a
-            href="/?launch=1"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="jtc-admin-primary-btn"
-          >
+          <a href="/?launch=1" target="_blank" rel="noopener noreferrer" className="jtc-admin-primary-btn">
             Preview Launch Screen <PartyPopper size={17} />
           </a>
         </article>
@@ -120,9 +108,7 @@ export default function AdminDashboard() {
 
       <section className="jtc-admin-info-strip">
         <ShieldCheck size={20} />
-        <p>
-          JTC Reminder App code can live in this public repository, but real member records should be stored only in a private authenticated database.
-        </p>
+        <p>JTC Reminder App uses Supabase Auth and database access policies so member data is not stored in the public website repository.</p>
       </section>
     </main>
   );
