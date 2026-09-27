@@ -1,130 +1,113 @@
 import React, { useState } from "react";
-import { ArrowLeft, Cross, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowLeft, LockKeyhole, ShieldCheck, User } from "lucide-react";
 import churchImg from "../assets/church.jpg";
 import churchLogo from "../assets/logo.png";
+import "../styles/AdminPortal.css";
+
+const ADMIN_ID = "admin";
+const PASSWORD_SHA256 = "73ee6dfae2563cd2f4b8dad8b3d4f58f2e7509f6ae1aeee49c48897dffd51124";
+
+async function sha256(value) {
+  const data = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
 
 export default function AdminLogin() {
   const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setMessage("Admin dashboard features are coming soon.");
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setBusy(true);
+    setMessage("");
+
+    const form = new FormData(event.currentTarget);
+    const loginId = String(form.get("loginId") || "").trim().toLowerCase();
+    const password = String(form.get("password") || "");
+
+    try {
+      const passwordHash = await sha256(password);
+      const valid = loginId === ADMIN_ID && passwordHash === PASSWORD_SHA256;
+
+      if (!valid) {
+        setMessage("Login ID or password is incorrect.");
+        setBusy(false);
+        return;
+      }
+
+      sessionStorage.setItem("jtc_admin_session", "1");
+      setMessage("Login successful. Opening dashboard…");
+      window.setTimeout(() => {
+        window.location.href = "/?admin=dashboard";
+      }, 450);
+    } catch {
+      setMessage("Unable to verify login on this browser. Please try again.");
+      setBusy(false);
+    }
   };
 
   return (
-    <main className="admin-page">
-      <section className="admin-hero">
-        <img
-          src={churchImg}
-          alt="Jubilee Tamil Church"
-          className="admin-bg"
-        />
+    <main className="jtc-admin-login-screen">
+      <img src={churchImg} alt="" className="jtc-admin-login-bg" />
+      <div className="jtc-admin-login-overlay" />
 
-        <div className="admin-overlay" />
+      <a href="/" className="jtc-admin-login-back">
+        <ArrowLeft size={18} /> Back to Church Website
+      </a>
 
-        <a href="/" className="admin-back">
-          <ArrowLeft size={18} />
-          Back to Church Website
-        </a>
+      <section className="jtc-admin-login-panel">
+        <img src={churchLogo} alt="Jubilee Tamil Church" className="jtc-admin-login-logo" />
+        <span className="jtc-admin-login-label">JUBILEE TAMIL CHURCH</span>
+        <h1>Admin Login</h1>
+        <p>Authorized church administration access.</p>
 
-        <motion.div
-          className="admin-login-card"
-          initial={{ opacity: 0, y: 30, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.7 }}
-        >
-          <div className="admin-logo admin-church-logo">
-  <img
-    src={churchLogo}
-    alt="Jubilee Tamil Church logo"
-  />
-</div>
-          <span className="admin-eyebrow">JUBILEE TAMIL CHURCH</span>
+        <form onSubmit={handleSubmit} className="jtc-admin-login-form">
+          <label>
+            Login ID
+            <div className="jtc-admin-input-wrap">
+              <User size={18} />
+              <input
+                type="text"
+                name="loginId"
+                placeholder="Enter login ID"
+                autoComplete="username"
+                required
+              />
+            </div>
+          </label>
 
-          <h1>Admin Login</h1>
+          <label>
+            Password
+            <div className="jtc-admin-input-wrap">
+              <LockKeyhole size={18} />
+              <input
+                type="password"
+                name="password"
+                placeholder="Enter password"
+                autoComplete="current-password"
+                required
+              />
+            </div>
+          </label>
 
-          <p className="admin-intro">
-            Secure access for authorized church administration.
-          </p>
+          <button type="submit" className="jtc-admin-login-submit" disabled={busy}>
+            <ShieldCheck size={18} />
+            {busy ? "Checking…" : "Login"}
+          </button>
 
-          <form onSubmit={handleSubmit} className="admin-form">
-            <label>
-              Email Address
-              <div className="admin-input-wrap">
-                <Mail size={18} />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="admin@example.com"
-                  required
-                />
-              </div>
-            </label>
+          {message && (
+            <div className={`jtc-admin-login-message ${message.startsWith("Login successful") ? "success" : "error"}`}>
+              {message}
+            </div>
+          )}
+        </form>
 
-            <label>
-              Password
-              <div className="admin-input-wrap">
-                <LockKeyhole size={18} />
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Enter password"
-                  required
-                />
-              </div>
-            </label>
-
-            <button type="submit" className="admin-login-btn">
-              <ShieldCheck size={18} />
-              Login
-            </button>
-
-            {message && (
-              <div className="admin-message">
-                {message}
-              </div>
-            )}
-          </form>
-        </motion.div>
-      </section>
-
-      <section className="admin-coming-soon">
-        <div className="container admin-coming-grid">
-          <motion.div
-            className="admin-coming-image"
-            initial={{ opacity: 0, x: -25 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <img src={churchImg} alt="Jubilee Tamil Church building" />
-            <div className="admin-image-frame" />
-          </motion.div>
-
-          <motion.div
-            className="admin-coming-copy"
-            initial={{ opacity: 0, x: 25 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <span className="admin-eyebrow">ADMIN PORTAL</span>
-
-            <h2>
-              Something Special Is
-              <br />
-              <span>Coming Soon.</span>
-            </h2>
-
-            <p>
-              The Jubilee Tamil Church administration portal is currently
-              being prepared. Future tools can include church announcements,
-              events, sermons, gallery management and other administrative
-              features.
-            </p>
-
-            <div className="admin-coming-line" />
-          </motion.div>
-        </div>
+        <p className="jtc-admin-security-note">
+          <strong>Note:</strong> this is a client-side gate on a static GitHub Pages site. It keeps the password out of plain text, but it is not equivalent to server-side authentication.
+        </p>
       </section>
     </main>
   );
