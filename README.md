@@ -1,4 +1,8 @@
-# Jubilee Tamil Church — Premium React + Vite Website
+# Jubilee Tamil Church — Official Website
+
+Official website: https://jubileetamilchurch.com/
+
+This repository powers the official Jubilee Tamil Church website for Sanpada and Ulwe, Navi Mumbai.
 
 ## Run
 ```bash
@@ -12,16 +16,16 @@ npm run build
 ```
 
 ## Included
-- Premium royal blue, gold and white UI
-- Responsive glassmorphism navigation and hero
-- About, service timings, sermons, events, gallery, leadership, contact and footer
-- Gallery category filtering and image lightbox
-- Church chatbot with useful built-in responses
+- Responsive royal blue, gold and white UI
+- About, service timings, sermons, events, gallery, leadership and contact sections
+- Jubilee Tamil Church Sanpada and Ulwe branch information
+- Gallery albums and image lightbox
+- Church chatbot
 - Framer Motion animations
-- Supplied church photography integrated into the website
+- SEO metadata, sitemap and robots.txt for https://jubileetamilchurch.com/
 
-## Notes
-The contact form opens the visitor's email application via `mailto:` so it works without requiring a backend.
-Update `info@jubileetamilchurch.org` in `Home.jsx` when you have the final church email address.
+## Official contact
+Email: jubileetamilchurchsanpada@gmail.com
 
-Social footer links are retained as `#` because no verified church social URLs were supplied. Replace them with the church's existing URLs from your current project when merging.
+## Official website
+https://jubileetamilchurch.com/
