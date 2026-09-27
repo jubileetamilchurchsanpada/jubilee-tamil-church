@@ -5,6 +5,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import JtcReminderApp from "./pages/JtcReminderApp";
 import UlweBranch from "./components/UlweBranch";
 import LatestSermonEnhancer from "./components/LatestSermonEnhancer";
+import ChurchInfoCorrections from "./components/ChurchInfoCorrections";
 
 export default function App() {
   const params = new URLSearchParams(window.location.search);
@@ -25,6 +26,7 @@ export default function App() {
       <Home />
       <LatestSermonEnhancer />
       <UlweBranch />
+      <ChurchInfoCorrections />
     </>
   );
 }
