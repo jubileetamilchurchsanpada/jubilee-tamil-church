@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, PartyPopper, Play, Sparkles } from "lucide-react";
+import { PartyPopper, Play, Sparkles } from "lucide-react";
 import churchLogo from "../assets/logo.png";
 import "../styles/LaunchPage.css";
 
@@ -49,8 +49,8 @@ export default function LaunchPage() {
     if (phase !== "live") return undefined;
 
     const redirect = window.setTimeout(() => {
-      window.location.href = "/";
-    }, 6500);
+      window.location.replace("/");
+    }, 1500);
 
     return () => window.clearTimeout(redirect);
   }, [phase]);
@@ -62,10 +62,6 @@ export default function LaunchPage() {
 
   return (
     <main className={`jtc-launch-page ${phase}`}>
-      <a href="/" className="jtc-launch-back">
-        <ArrowLeft size={18} /> Back to Website
-      </a>
-
       <div className="jtc-launch-glow jtc-launch-glow-one" />
       <div className="jtc-launch-glow jtc-launch-glow-two" />
 
@@ -108,7 +104,7 @@ export default function LaunchPage() {
             <span className="jtc-launch-kicker"><Sparkles size={16} /> JUBILEE TAMIL CHURCH</span>
             <h1>Ready To Go Live?</h1>
             <p>
-              Press the button when the priest is ready. The launch will count down from 5 to 1 and then celebrate the website going live.
+              Press the button when the priest is ready. The launch will count down from 5 to 1 and then open the church website automatically.
             </p>
             <button type="button" className="jtc-go-live-btn" onClick={startLaunch}>
               <Play fill="currentColor" size={21} /> GO LIVE
@@ -130,7 +126,7 @@ export default function LaunchPage() {
             <PartyPopper size={50} />
             <span className="jtc-live-pill">WE ARE LIVE</span>
             <h1>Jubilee Tamil Church</h1>
-            <p>The website is live. God bless this new digital ministry.</p>
+            <p>Opening the church website…</p>
             <div className="jtc-live-cross">✝</div>
           </div>
         )}
