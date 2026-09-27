@@ -7,19 +7,18 @@ import UlweBranch from "./components/UlweBranch";
 import LatestSermonEnhancer from "./components/LatestSermonEnhancer";
 
 export default function App() {
+  const params = new URLSearchParams(window.location.search);
+  const redirectedPath = params.get("jtc_path");
+
+  if (redirectedPath) {
+    window.history.replaceState({}, "", redirectedPath);
+  }
+
   const path = window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
 
-  if (path === "/admin") {
-    return <AdminLogin />;
-  }
-
-  if (path === "/admin/dashboard") {
-    return <AdminDashboard />;
-  }
-
-  if (path === "/admin/reminders") {
-    return <JtcReminderApp />;
-  }
+  if (path === "/admin") return <AdminLogin />;
+  if (path === "/admin/dashboard") return <AdminDashboard />;
+  if (path === "/admin/reminders") return <JtcReminderApp />;
 
   return (
     <>
