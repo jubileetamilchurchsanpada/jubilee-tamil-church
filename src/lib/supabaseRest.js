@@ -132,9 +132,9 @@ export async function deleteReminder(id) {
 
 export async function importReminders(records) {
   if (!Array.isArray(records) || records.length === 0) return [];
-  return (await restRequest("/reminders?on_conflict=owner_id,type,name,date", {
+  return (await restRequest("/reminders?on_conflict=type,name,date", {
     method: "POST",
-    headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+    headers: { Prefer: "resolution=ignore-duplicates,return=representation" },
     body: JSON.stringify(records),
   })) || [];
 }
