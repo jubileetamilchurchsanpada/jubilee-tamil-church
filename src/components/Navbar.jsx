@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X, Cross, LockKeyhole } from "lucide-react";
+import { Menu, X, LockKeyhole } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import churchLogo from "../assets/logo.png";
 
@@ -35,22 +35,19 @@ export default function Navbar() {
     <header className={`nav-shell ${solid ? "nav-solid" : ""}`}>
       <div className="container navbar">
         <button
-  className="brand"
-  onClick={() => go("home")}
-  aria-label="Jubilee Tamil Church home"
->
-  <span className="brand-mark brand-logo">
-    <img
-      src={churchLogo}
-      alt="Jubilee Tamil Church logo"
-    />
-  </span>
+          className="brand"
+          onClick={() => go("home")}
+          aria-label="Jubilee Tamil Church home"
+        >
+          <span className="brand-mark brand-logo">
+            <img src={churchLogo} alt="Jubilee Tamil Church logo" />
+          </span>
 
-  <span>
-    <strong>JUBILEE</strong>
-    <small>TAMIL CHURCH</small>
-  </span>
-</button>
+          <span>
+            <strong>JUBILEE</strong>
+            <small>TAMIL CHURCH</small>
+          </span>
+        </button>
 
         <nav className="desktop-nav" aria-label="Primary navigation">
           {links.map(([label, id]) => (
@@ -59,7 +56,7 @@ export default function Navbar() {
             </button>
           ))}
 
-          <a href="/admin" className="admin-nav-link">
+          <a href="/?admin=1" className="admin-nav-link">
             <LockKeyhole size={14} />
             Admin
           </a>
@@ -88,7 +85,7 @@ export default function Navbar() {
               </button>
             ))}
 
-            <a href="/admin" className="mobile-admin-link">
+            <a href="/?admin=1" className="mobile-admin-link">
               <LockKeyhole size={15} />
               Admin Login
             </a>
