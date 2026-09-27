@@ -17,11 +17,15 @@ export default function App() {
   }
 
   const path = window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
-  const launchRequested = params.get("launch") === "1";
+  const isLaunch = path === "/launch" || params.get("launch") === "1";
 
-  if (launchRequested || path === "/launch") return <LaunchPage />;
-  if (path === "/admin" || path === "/admin/dashboard") return <AdminDashboard />;
-  if (path === "/admin/login") return <AdminLogin />;
+  if (isLaunch) return <LaunchPage />;
+
+  // Public admin entry point: always show the login screen first.
+  if (path === "/admin" || path === "/admin/login") return <AdminLogin />;
+
+  // Protected admin pages handle session validation themselves.
+  if (path === "/admin/dashboard") return <AdminDashboard />;
   if (path === "/admin/reminders") return <JtcReminderApp />;
 
   return (
