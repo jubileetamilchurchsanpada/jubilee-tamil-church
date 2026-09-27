@@ -22,14 +22,41 @@ import {
 } from "../lib/supabaseRest";
 import "../styles/JtcReminderApp.css";
 
+function startOfToday() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
 function daysUntil(dateValue) {
   if (!dateValue) return 999;
-  const now = new Date();
+  const today = startOfToday();
   const source = new Date(`${dateValue}T00:00:00`);
-  let next = new Date(now.getFullYear(), source.getMonth(), source.getDate());
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  if (next < today) next = new Date(now.getFullYear() + 1, source.getMonth(), source.getDate());
+  let next = new Date(today.getFullYear(), source.getMonth(), source.getDate());
+  if (next < today) next = new Date(today.getFullYear() + 1, source.getMonth(), source.getDate());
   return Math.round((next - today) / 86400000);
+}
+
+function getSundayToSaturdayWindow() {
+  const today = startOfToday();
+  const sunday = new Date(today);
+  sunday.setDate(today.getDate() - today.getDay());
+  const saturday = new Date(sunday);
+  saturday.setDate(sunday.getDate() + 6);
+  return { today, sunday, saturday };
+}
+
+function occurrenceInWindow(dateValue, start, end) {
+  if (!dateValue) return null;
+  const source = new Date(`${dateValue}T00:00:00`);
+  const years = start.getFullYear() === end.getFullYear()
+    ? [start.getFullYear()]
+    : [start.getFullYear(), end.getFullYear()];
+
+  for (const year of years) {
+    const occurrence = new Date(year, source.getMonth(), source.getDate());
+    if (occurrence >= start && occurrence <= end) return occurrence;
+  }
+  return null;
 }
 
 function formatDate(dateValue) {
@@ -37,6 +64,23 @@ function formatDate(dateValue) {
   return new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short" }).format(
     new Date(`${dateValue}T00:00:00`)
   );
+}
+
+function formatOccurrence(dateValue) {
+  return new Intl.DateTimeFormat("en-IN", { weekday: "short", day: "2-digit", month: "short" }).format(dateValue);
+}
+
+function formatWeekRange(start, end) {
+  const startText = new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short" }).format(start);
+  const endText = new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short" }).format(end);
+  return `${startText} – ${endText}`;
+}
+
+function relativeDayLabel(days) {
+  if (days === 0) return "Today";
+  if (days > 0) return `In ${days} day${days === 1 ? "" : "s"}`;
+  const elapsed = Math.abs(days);
+  return `${elapsed} day${elapsed === 1 ? "" : "s"} ago`;
 }
 
 function parseCsvLine(line) {
@@ -115,11 +159,27 @@ export default function JtcReminderApp() {
     load();
   }, []);
 
+  const weekWindow = useMemo(() => getSundayToSaturdayWindow(), []);
+
+  const nextSevenDays = useMemo(() => records
+    .map((item) => {
+      const occurrence = occurrenceInWindow(item.date, weekWindow.sunday, weekWindow.saturday);
+      if (!occurrence) return null;
+      return {
+        ...item,
+        occurrence,
+        days: Math.round((occurrence - weekWindow.today) / 86400000),
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.occurrence - b.occurrence || a.name.localeCompare(b.name)),
+  [records, weekWindow]);
+
   const upcoming = useMemo(
     () => records
       .map((item) => ({ ...item, days: daysUntil(item.date) }))
       .filter((item) => item.days <= 30)
-      .sort((a, b) => a.days - b.days),
+      .sort((a, b) => a.days - b.days || a.name.localeCompare(b.name)),
     [records]
   );
 
@@ -128,7 +188,7 @@ export default function JtcReminderApp() {
     return records
       .map((item) => ({ ...item, days: daysUntil(item.date) }))
       .filter((item) => !q || item.name.toLowerCase().includes(q))
-      .sort((a, b) => a.days - b.days);
+      .sort((a, b) => a.days - b.days || a.name.localeCompare(b.name));
   }, [records, query]);
 
   const addRecord = async (event) => {
@@ -198,7 +258,7 @@ export default function JtcReminderApp() {
       <section className="jtc-reminder-hero">
         <span><ShieldCheck size={16} /> PRIVATE DATABASE</span>
         <h1>JTC Reminder App</h1>
-        <p>Securely manage church member birthdays and wedding anniversaries and see celebrations coming up in the next 30 days.</p>
+        <p>Securely manage church member birthdays and wedding anniversaries, with a Sunday-to-Saturday weekly view and the next 30 days.</p>
       </section>
 
       <section className="jtc-reminder-layout">
@@ -206,26 +266,54 @@ export default function JtcReminderApp() {
           <div className="jtc-reminder-stats">
             <article><Cake /><div><strong>{records.filter((r) => r.type === "birthday").length}</strong><span>Birthdays</span></div></article>
             <article><HeartHandshake /><div><strong>{records.filter((r) => r.type === "anniversary").length}</strong><span>Anniversaries</span></div></article>
+            <article><CalendarHeart /><div><strong>{nextSevenDays.length}</strong><span>Next 7 Days</span></div></article>
             <article><CalendarHeart /><div><strong>{upcoming.length}</strong><span>Next 30 Days</span></div></article>
           </div>
 
           {message && <div className="jtc-reminder-status">{message}</div>}
 
-          <div className="jtc-reminder-card">
-            <div className="jtc-reminder-card-head"><div><span className="jtc-reminder-kicker">UPCOMING</span><h2>Next 30 Days</h2></div></div>
-            {loading ? <p className="jtc-reminder-empty">Loading reminders…</p> : upcoming.length === 0 ? (
-              <p className="jtc-reminder-empty">No celebrations in the next 30 days.</p>
-            ) : (
-              <div className="jtc-reminder-list">
-                {upcoming.map((item) => (
-                  <div className="jtc-reminder-row" key={item.id}>
-                    <div className={`jtc-reminder-icon ${item.type}`}>{item.type === "birthday" ? <Cake /> : <HeartHandshake />}</div>
-                    <div className="jtc-reminder-person"><strong>{item.name}</strong><span>{item.type === "birthday" ? "Birthday" : "Wedding Anniversary"}</span></div>
-                    <div className="jtc-reminder-date"><strong>{formatDate(item.date)}</strong><span>{item.days === 0 ? "Today" : `${item.days} day${item.days === 1 ? "" : "s"}`}</span></div>
-                  </div>
-                ))}
+          <div className="jtc-reminder-upcoming-grid">
+            <div className="jtc-reminder-card jtc-reminder-upcoming-card">
+              <div className="jtc-reminder-card-head">
+                <div>
+                  <span className="jtc-reminder-kicker">SUNDAY TO SATURDAY</span>
+                  <h2>Next 7 Days</h2>
+                  <small className="jtc-reminder-range">{formatWeekRange(weekWindow.sunday, weekWindow.saturday)}</small>
+                </div>
               </div>
-            )}
+              {loading ? <p className="jtc-reminder-empty">Loading reminders…</p> : nextSevenDays.length === 0 ? (
+                <p className="jtc-reminder-empty">No celebrations from Sunday through Saturday.</p>
+              ) : (
+                <div className="jtc-reminder-list">
+                  {nextSevenDays.map((item) => (
+                    <div className="jtc-reminder-row" key={`week-${item.id}`}>
+                      <div className={`jtc-reminder-icon ${item.type}`}>{item.type === "birthday" ? <Cake /> : <HeartHandshake />}</div>
+                      <div className="jtc-reminder-person"><strong>{item.name}</strong><span>{item.type === "birthday" ? "Birthday" : "Wedding Anniversary"}</span></div>
+                      <div className="jtc-reminder-date"><strong>{formatOccurrence(item.occurrence)}</strong><span>{relativeDayLabel(item.days)}</span></div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="jtc-reminder-card jtc-reminder-upcoming-card">
+              <div className="jtc-reminder-card-head">
+                <div><span className="jtc-reminder-kicker">UPCOMING</span><h2>Next 30 Days</h2><small className="jtc-reminder-range">From today forward</small></div>
+              </div>
+              {loading ? <p className="jtc-reminder-empty">Loading reminders…</p> : upcoming.length === 0 ? (
+                <p className="jtc-reminder-empty">No celebrations in the next 30 days.</p>
+              ) : (
+                <div className="jtc-reminder-list">
+                  {upcoming.map((item) => (
+                    <div className="jtc-reminder-row" key={`month-${item.id}`}>
+                      <div className={`jtc-reminder-icon ${item.type}`}>{item.type === "birthday" ? <Cake /> : <HeartHandshake />}</div>
+                      <div className="jtc-reminder-person"><strong>{item.name}</strong><span>{item.type === "birthday" ? "Birthday" : "Wedding Anniversary"}</span></div>
+                      <div className="jtc-reminder-date"><strong>{formatDate(item.date)}</strong><span>{item.days === 0 ? "Today" : `In ${item.days} day${item.days === 1 ? "" : "s"}`}</span></div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="jtc-reminder-card">
