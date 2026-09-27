@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   CalendarHeart,
   Cake,
+  FileUp,
   HeartHandshake,
   LogOut,
   Plus,
@@ -11,18 +12,15 @@ import {
   Trash2,
 } from "lucide-react";
 import churchLogo from "../assets/logo.png";
+import {
+  addReminder,
+  deleteReminder,
+  getReminders,
+  getStoredSession,
+  importReminders,
+  signOut,
+} from "../lib/supabaseRest";
 import "../styles/JtcReminderApp.css";
-
-const STORAGE_KEY = "jtc_reminder_records_v1";
-
-function loadRecords() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : [];
-  } catch {
-    return [];
-  }
-}
 
 function daysUntil(dateValue) {
   if (!dateValue) return 999;
@@ -41,22 +39,81 @@ function formatDate(dateValue) {
   );
 }
 
+function parseCsvLine(line) {
+  const cells = [];
+  let current = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    if (char === '"') {
+      if (quoted && line[i + 1] === '"') {
+        current += '"';
+        i += 1;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (char === "," && !quoted) {
+      cells.push(current);
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  cells.push(current);
+  return cells;
+}
+
+function parseReminderCsv(text) {
+  const normalized = text.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const lines = normalized.split("\n").filter((line) => line.trim());
+  if (lines.length < 2) return [];
+  const headers = parseCsvLine(lines[0]).map((x) => x.trim().toLowerCase());
+  const typeIndex = headers.indexOf("type");
+  const nameIndex = headers.indexOf("name");
+  const dateIndex = headers.indexOf("date");
+  if (typeIndex < 0 || nameIndex < 0 || dateIndex < 0) {
+    throw new Error("CSV must contain type, name and date columns.");
+  }
+  return lines.slice(1).map(parseCsvLine).map((cells) => ({
+    type: (cells[typeIndex] || "").trim().toLowerCase(),
+    name: (cells[nameIndex] || "").trim(),
+    date: (cells[dateIndex] || "").trim(),
+  })).filter((item) => ["birthday", "anniversary"].includes(item.type) && item.name && /^\d{4}-\d{2}-\d{2}$/.test(item.date));
+}
+
 export default function JtcReminderApp() {
-  const [records, setRecords] = useState(loadRecords);
+  const [records, setRecords] = useState([]);
   const [query, setQuery] = useState("");
   const [type, setType] = useState("birthday");
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [importing, setImporting] = useState(false);
 
-  useEffect(() => {
-    if (sessionStorage.getItem("jtc_admin_session") !== "1") {
-      window.location.replace("/admin");
+  const load = async () => {
+    try {
+      setLoading(true);
+      const data = await getReminders();
+      setRecords(data);
+    } catch (error) {
+      if (error.message === "AUTH_REQUIRED") {
+        window.location.replace("/admin");
+        return;
+      }
+      setMessage(error.message || "Unable to load reminders.");
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  }, [records]);
+    if (!getStoredSession()?.access_token) {
+      window.location.replace("/admin");
+      return;
+    }
+    load();
+  }, []);
 
   const upcoming = useMemo(
     () => records
@@ -74,23 +131,54 @@ export default function JtcReminderApp() {
       .sort((a, b) => a.days - b.days);
   }, [records, query]);
 
-  const addRecord = (event) => {
+  const addRecord = async (event) => {
     event.preventDefault();
     if (!name.trim() || !date) return;
-    setRecords((current) => [
-      ...current,
-      { id: crypto.randomUUID(), type, name: name.trim(), date },
-    ]);
-    setName("");
-    setDate("");
+    try {
+      setMessage("");
+      const saved = await addReminder({ type, name: name.trim(), date });
+      if (saved) setRecords((current) => [...current, saved]);
+      else await load();
+      setName("");
+      setDate("");
+      setMessage("Reminder added securely.");
+    } catch (error) {
+      setMessage(error.message || "Unable to add reminder.");
+    }
   };
 
-  const removeRecord = (id) => {
-    setRecords((current) => current.filter((item) => item.id !== id));
+  const removeRecord = async (id) => {
+    if (!window.confirm("Delete this reminder?")) return;
+    try {
+      await deleteReminder(id);
+      setRecords((current) => current.filter((item) => item.id !== id));
+      setMessage("Reminder deleted.");
+    } catch (error) {
+      setMessage(error.message || "Unable to delete reminder.");
+    }
   };
 
-  const logout = () => {
-    sessionStorage.removeItem("jtc_admin_session");
+  const handleImport = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    try {
+      setImporting(true);
+      setMessage("");
+      const rows = parseReminderCsv(await file.text());
+      if (!rows.length) throw new Error("No valid reminder rows found in the CSV.");
+      await importReminders(rows);
+      await load();
+      setMessage(`${rows.length} reminder rows imported securely.`);
+    } catch (error) {
+      setMessage(error.message || "Import failed.");
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const logout = async () => {
+    await signOut();
     window.location.href = "/admin";
   };
 
@@ -108,9 +196,9 @@ export default function JtcReminderApp() {
       </header>
 
       <section className="jtc-reminder-hero">
-        <span><ShieldCheck size={16} /> ADMIN ONLY</span>
+        <span><ShieldCheck size={16} /> PRIVATE DATABASE</span>
         <h1>JTC Reminder App</h1>
-        <p>Track church member birthdays and wedding anniversaries and quickly see celebrations coming up in the next 30 days.</p>
+        <p>Securely manage church member birthdays and wedding anniversaries and see celebrations coming up in the next 30 days.</p>
       </section>
 
       <section className="jtc-reminder-layout">
@@ -121,12 +209,12 @@ export default function JtcReminderApp() {
             <article><CalendarHeart /><div><strong>{upcoming.length}</strong><span>Next 30 Days</span></div></article>
           </div>
 
+          {message && <div className="jtc-reminder-status">{message}</div>}
+
           <div className="jtc-reminder-card">
-            <div className="jtc-reminder-card-head">
-              <div><span className="jtc-reminder-kicker">UPCOMING</span><h2>Next 30 Days</h2></div>
-            </div>
-            {upcoming.length === 0 ? (
-              <p className="jtc-reminder-empty">No upcoming reminders yet. Add records using the form.</p>
+            <div className="jtc-reminder-card-head"><div><span className="jtc-reminder-kicker">UPCOMING</span><h2>Next 30 Days</h2></div></div>
+            {loading ? <p className="jtc-reminder-empty">Loading reminders…</p> : upcoming.length === 0 ? (
+              <p className="jtc-reminder-empty">No celebrations in the next 30 days.</p>
             ) : (
               <div className="jtc-reminder-list">
                 {upcoming.map((item) => (
@@ -145,15 +233,13 @@ export default function JtcReminderApp() {
               <div><span className="jtc-reminder-kicker">MEMBERS</span><h2>All Reminders</h2></div>
               <label className="jtc-reminder-search"><Search size={17} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name" /></label>
             </div>
-            {filtered.length === 0 ? (
-              <p className="jtc-reminder-empty">No records found.</p>
-            ) : (
+            {!loading && filtered.length === 0 ? <p className="jtc-reminder-empty">No records found.</p> : (
               <div className="jtc-reminder-list">
                 {filtered.map((item) => (
                   <div className="jtc-reminder-row" key={item.id}>
                     <div className={`jtc-reminder-icon ${item.type}`}>{item.type === "birthday" ? <Cake /> : <HeartHandshake />}</div>
                     <div className="jtc-reminder-person"><strong>{item.name}</strong><span>{item.type === "birthday" ? "Birthday" : "Wedding Anniversary"}</span></div>
-                    <div className="jtc-reminder-date"><strong>{formatDate(item.date)}</strong><span>In {item.days} days</span></div>
+                    <div className="jtc-reminder-date"><strong>{formatDate(item.date)}</strong><span>{item.days === 0 ? "Today" : `In ${item.days} days`}</span></div>
                     <button className="jtc-reminder-delete" onClick={() => removeRecord(item.id)} aria-label={`Delete ${item.name}`}><Trash2 size={17} /></button>
                   </div>
                 ))}
@@ -172,9 +258,19 @@ export default function JtcReminderApp() {
             <button type="submit" className="jtc-reminder-primary"><Plus size={17} /> Add Reminder</button>
           </form>
 
+          <div className="jtc-reminder-card jtc-reminder-import">
+            <span className="jtc-reminder-kicker">EXCEL DATA IMPORT</span>
+            <h2>Import Church List</h2>
+            <p>Upload the private JTC reminder CSV prepared from the church workbook. The data goes directly to the authenticated database and is not committed to GitHub.</p>
+            <label className="jtc-reminder-primary jtc-reminder-file-button">
+              <FileUp size={17} /> {importing ? "Importing…" : "Choose Reminder CSV"}
+              <input type="file" accept=".csv,text/csv" onChange={handleImport} disabled={importing} />
+            </label>
+          </div>
+
           <div className="jtc-reminder-privacy">
             <ShieldCheck size={20} />
-            <div><strong>Private-by-design first version</strong><p>Real member data is not committed to the public GitHub repository. Records entered here stay in this browser only. For church-wide use, connect this screen to a private authenticated database.</p></div>
+            <div><strong>Private member records</strong><p>Records are stored in Supabase behind authenticated access and database security policies. The public GitHub repository contains application code only.</p></div>
           </div>
         </aside>
       </section>
