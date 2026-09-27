@@ -1,51 +1,56 @@
-import React, { useState } from "react";
-import { ArrowLeft, LockKeyhole, ShieldCheck, User } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ArrowLeft, LockKeyhole, Mail, ShieldCheck, UserPlus } from "lucide-react";
 import churchImg from "../assets/church.jpg";
 import churchLogo from "../assets/logo.png";
+import {
+  getStoredSession,
+  isSupabaseConfigured,
+  JTC_ADMIN_EMAIL,
+  signInWithPassword,
+  signUpAdmin,
+} from "../lib/supabaseRest";
 import "../styles/AdminPortal.css";
 
-const ADMIN_ID = "admin";
-const PASSWORD_SHA256 = "73ee6dfae2563cd2f4b8dad8b3d4f58f2e7509f6ae1aeee49c48897dffd51124";
-
-async function sha256(value) {
-  const data = new TextEncoder().encode(value);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(digest))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 export default function AdminLogin() {
+  const [email, setEmail] = useState(JTC_ADMIN_EMAIL);
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [messageType, setMessageType] = useState("error");
+  const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState("login");
+
+  useEffect(() => {
+    if (getStoredSession()?.access_token) {
+      window.location.replace("/admin/dashboard");
+    }
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setBusy(true);
     setMessage("");
-
-    const form = new FormData(event.currentTarget);
-    const loginId = String(form.get("loginId") || "").trim().toLowerCase();
-    const password = String(form.get("password") || "");
+    setLoading(true);
 
     try {
-      const passwordHash = await sha256(password);
-      const valid = loginId === ADMIN_ID && passwordHash === PASSWORD_SHA256;
-
-      if (!valid) {
-        setMessage("Login ID or password is incorrect.");
-        setBusy(false);
+      if (mode === "setup") {
+        if (password.length < 8) throw new Error("Use a password with at least 8 characters.");
+        const result = await signUpAdmin(email, password);
+        if (result.access_token) {
+          window.location.replace("/admin/dashboard");
+          return;
+        }
+        setMessageType("success");
+        setMessage("Admin account created. Check the church email inbox for the Supabase confirmation email, confirm it, then return here and log in.");
+        setMode("login");
         return;
       }
 
-      sessionStorage.setItem("jtc_admin_session", "1");
-      setMessage("Login successful. Opening dashboard…");
-      window.setTimeout(() => {
-        window.location.href = "/?admin=dashboard";
-      }, 450);
-    } catch {
-      setMessage("Unable to verify login on this browser. Please try again.");
-      setBusy(false);
+      await signInWithPassword(email.trim(), password);
+      window.location.replace("/admin/dashboard");
+    } catch (error) {
+      setMessageType("error");
+      setMessage(error.message || "Authentication failed.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,24 +60,28 @@ export default function AdminLogin() {
       <div className="jtc-admin-login-overlay" />
 
       <a href="/" className="jtc-admin-login-back">
-        <ArrowLeft size={18} /> Back to Church Website
+        <ArrowLeft size={17} /> Back to Church Website
       </a>
 
       <section className="jtc-admin-login-panel">
         <img src={churchLogo} alt="Jubilee Tamil Church" className="jtc-admin-login-logo" />
         <span className="jtc-admin-login-label">JUBILEE TAMIL CHURCH</span>
-        <h1>Admin Login</h1>
-        <p>Authorized church administration access.</p>
+        <h1>{mode === "setup" ? "Admin Setup" : "Admin Login"}</h1>
+        <p>
+          {mode === "setup"
+            ? "Create the secure JTC admin account using the authorized church email."
+            : "Secure access to the JTC Reminder App and church administration tools."}
+        </p>
 
         <form onSubmit={handleSubmit} className="jtc-admin-login-form">
           <label>
-            Login ID
+            Email Address
             <div className="jtc-admin-input-wrap">
-              <User size={18} />
+              <Mail size={18} />
               <input
-                type="text"
-                name="loginId"
-                placeholder="Enter login ID"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 autoComplete="username"
                 required
               />
@@ -85,28 +94,42 @@ export default function AdminLogin() {
               <LockKeyhole size={18} />
               <input
                 type="password"
-                name="password"
-                placeholder="Enter password"
-                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={mode === "setup" ? "Create password (8+ characters)" : "Enter password"}
+                autoComplete={mode === "setup" ? "new-password" : "current-password"}
+                minLength={mode === "setup" ? 8 : undefined}
                 required
               />
             </div>
           </label>
 
-          <button type="submit" className="jtc-admin-login-submit" disabled={busy}>
-            <ShieldCheck size={18} />
-            {busy ? "Checking…" : "Login"}
+          <button type="submit" className="jtc-admin-login-submit" disabled={loading || !isSupabaseConfigured()}>
+            {mode === "setup" ? <UserPlus size={18} /> : <ShieldCheck size={18} />}
+            {loading ? "Please wait…" : mode === "setup" ? "Create Admin Account" : "Login"}
           </button>
 
-          {message && (
-            <div className={`jtc-admin-login-message ${message.startsWith("Login successful") ? "success" : "error"}`}>
-              {message}
-            </div>
+          <button
+            type="button"
+            className="jtc-admin-login-mode"
+            onClick={() => {
+              setMessage("");
+              setPassword("");
+              setMode((current) => (current === "login" ? "setup" : "login"));
+            }}
+          >
+            {mode === "login" ? "First time? Set up admin account" : "Already set up? Return to login"}
+          </button>
+
+          {!isSupabaseConfigured() && (
+            <div className="jtc-admin-login-message error">Secure database configuration is not deployed yet.</div>
           )}
+
+          {message && <div className={`jtc-admin-login-message ${messageType}`}>{message}</div>}
         </form>
 
         <p className="jtc-admin-security-note">
-          <strong>Note:</strong> this is a client-side gate on a static GitHub Pages site. It keeps the password out of plain text, but it is not equivalent to server-side authentication.
+          <strong>Security:</strong> reminder data is protected by Supabase Row Level Security and restricted to the authorized church admin email.
         </p>
       </section>
     </main>
