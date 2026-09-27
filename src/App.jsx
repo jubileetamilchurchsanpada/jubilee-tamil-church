@@ -17,8 +17,8 @@ export default function App() {
 
   const path = window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
 
-  if (path === "/admin") return <AdminLogin />;
-  if (path === "/admin/dashboard") return <AdminDashboard />;
+  if (path === "/admin" || path === "/admin/dashboard") return <AdminDashboard />;
+  if (path === "/admin/login") return <AdminLogin />;
   if (path === "/admin/reminders") return <JtcReminderApp />;
 
   return (
