@@ -22,6 +22,21 @@ import {
 } from "../lib/supabaseRest";
 import "../styles/JtcReminderApp.css";
 
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 function startOfToday() {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -57,6 +72,12 @@ function occurrenceInWindow(dateValue, start, end) {
     if (occurrence >= start && occurrence <= end) return occurrence;
   }
   return null;
+}
+
+function monthIndexFromSearch(value) {
+  const q = value.trim().toLowerCase();
+  if (q.length < 3) return -1;
+  return MONTHS.findIndex((month) => month.toLowerCase().startsWith(q));
 }
 
 function formatDate(dateValue) {
@@ -128,6 +149,7 @@ function parseReminderCsv(text) {
 export default function JtcReminderApp() {
   const [records, setRecords] = useState([]);
   const [query, setQuery] = useState("");
+  const [monthFilter, setMonthFilter] = useState("");
   const [type, setType] = useState("birthday");
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
@@ -185,11 +207,27 @@ export default function JtcReminderApp() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
+    const searchedMonth = monthIndexFromSearch(q);
+    const selectedMonth = monthFilter === "" ? -1 : Number(monthFilter);
+    const activeMonth = selectedMonth >= 0 ? selectedMonth : searchedMonth;
+    const nameQuery = selectedMonth < 0 && searchedMonth >= 0 ? "" : q;
+
     return records
       .map((item) => ({ ...item, days: daysUntil(item.date) }))
-      .filter((item) => !q || item.name.toLowerCase().includes(q))
-      .sort((a, b) => a.days - b.days || a.name.localeCompare(b.name));
-  }, [records, query]);
+      .filter((item) => {
+        const itemMonth = item.date ? Number(item.date.slice(5, 7)) - 1 : -1;
+        const matchesMonth = activeMonth < 0 || itemMonth === activeMonth;
+        const matchesName = !nameQuery || item.name.toLowerCase().includes(nameQuery);
+        return matchesMonth && matchesName;
+      })
+      .sort((a, b) => {
+        if (activeMonth >= 0) {
+          const dayDifference = Number(a.date.slice(8, 10)) - Number(b.date.slice(8, 10));
+          if (dayDifference !== 0) return dayDifference;
+        }
+        return a.days - b.days || a.name.localeCompare(b.name);
+      });
+  }, [records, query, monthFilter]);
 
   const addRecord = async (event) => {
     event.preventDefault();
@@ -319,9 +357,15 @@ export default function JtcReminderApp() {
           <div className="jtc-reminder-card">
             <div className="jtc-reminder-card-head jtc-reminder-search-head">
               <div><span className="jtc-reminder-kicker">MEMBERS</span><h2>All Reminders</h2></div>
-              <label className="jtc-reminder-search"><Search size={17} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name" /></label>
+              <div className="jtc-reminder-filter-controls">
+                <label className="jtc-reminder-search"><Search size={17} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name or month" /></label>
+                <select className="jtc-reminder-month-select" value={monthFilter} onChange={(e) => setMonthFilter(e.target.value)} aria-label="Filter reminders by month">
+                  <option value="">All Months</option>
+                  {MONTHS.map((month, index) => <option key={month} value={index}>{month}</option>)}
+                </select>
+              </div>
             </div>
-            {!loading && filtered.length === 0 ? <p className="jtc-reminder-empty">No records found.</p> : (
+            {!loading && filtered.length === 0 ? <p className="jtc-reminder-empty">No records found for this search or month.</p> : (
               <div className="jtc-reminder-list">
                 {filtered.map((item) => (
                   <div className="jtc-reminder-row" key={item.id}>
