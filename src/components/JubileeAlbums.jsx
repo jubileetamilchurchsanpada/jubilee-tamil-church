@@ -11,12 +11,8 @@ import {
 import "./JubileeAlbumsEnhancements.css";
 
 import churchImg from "../assets/church.jpg";
-import worshipImg from "../assets/worship.jpg";
 import communityImg from "../assets/community.jpg";
 import eventImg from "../assets/event.png";
-
-import anniversary01 from "../assets/jubilee-albums/anniversary/anniversary-01.jpg";
-import anniversary02 from "../assets/jubilee-albums/anniversary/anniversary-02.jpg";
 
 import mdcm01 from "../assets/jubilee-albums/mdcm/mdcm-01.jpg";
 import mdcm02 from "../assets/jubilee-albums/mdcm/mdcm-02.jpg";
@@ -32,15 +28,31 @@ import womensFellowship02 from "../assets/jubilee-albums/womens-fellowship/women
 import womensDay01 from "../assets/jubilee-albums/womens-day/womens-day-01.jpg";
 import womensDay02 from "../assets/jubilee-albums/womens-day/womens-day-02.jpg";
 
-import sundaySchool01 from "../assets/jubilee-albums/sunday-school/sunday-school-01.jpg";
-import sundaySchool02 from "../assets/jubilee-albums/sunday-school/sunday-school-02.jpg";
-
 import christmas01 from "../assets/jubilee-albums/christmas-carols/christmas-01.jpg";
 import christmas02 from "../assets/jubilee-albums/christmas-carols/christmas-02.jpg";
 
-const drivePhoto = (id) => `https://drive.google.com/thumbnail?id=${id}&sz=w1600`;
+const drivePhoto = (id) =>
+  `https://drive.google.com/thumbnail?id=${id}&sz=w1600`;
 
 const DRIVE_PHOTOS = {
+  anniversary: [
+    drivePhoto("12zDlsYK6PUoOVaJ05-nUyQicVPDDJ2Ak"),
+    drivePhoto("1jryrwwzojz1em3v3QnK40_cucr-bQdiF"),
+    drivePhoto("1lWNO-FhOAknIJgF4xWMPOPxgmop_It4u"),
+    drivePhoto("1PUwebR8uHU93i3t5ibwowLgqb3oC-GpG"),
+    drivePhoto("1AxE8I8VCNO-JV_ienEKKN-71vayNVDCO"),
+    drivePhoto("1kqeJG9O411wq4HId2_UKITYNUrwJxA_k"),
+    drivePhoto("1mHqlucd8Zfv-5ThACAgiBO-NiGWogWw1"),
+    drivePhoto("16q27zbeHSGbsC7V-dXIvkhf5DNiJFE0X"),
+    drivePhoto("1T6uBkPG8AGp0r5pf2OkOUl_CFXVQvMph"),
+    drivePhoto("1lCFLqK8o6ktAjwXM5486_HjKK4KutjPT"),
+    drivePhoto("1iKn2yIoi3Ahg_nUIdETpdudlvimsN1Nf"),
+    drivePhoto("1ak26XVhUP13ZjDm8h6TOK36049NFtsF3"),
+  ],
+  sundaySchool: [
+    drivePhoto("1ekRdflpVqpraenY0aIWHWVSaexSCXWdU"),
+    drivePhoto("1L4fcdfE0EdYIxd2zbSfw0w50CvtguNX4"),
+  ],
   mdcm: [
     drivePhoto("1-4-RFiFmKppfEzs_q7LCze0wazdL1O1e"),
     drivePhoto("1LBTvxZS4qe7daUu0Z-C6ZVX96JpKFKeL"),
@@ -69,9 +81,9 @@ const albums = [
     title: "30th Jubilee Tamil Church Anniversary",
     group: "Anniversary",
     comingSoon: false,
-    cover: anniversary01,
-    fallback: anniversary02,
-    images: [anniversary01, anniversary02],
+    cover: DRIVE_PHOTOS.anniversary[0],
+    fallback: churchImg,
+    images: DRIVE_PHOTOS.anniversary,
     folderUrl:
       "https://drive.google.com/drive/folders/1HzRW60bqdak-8GauUZ9ltp0bb27VWQRY",
   },
@@ -166,9 +178,9 @@ const albums = [
     title: "Sunday School Exhibition 2026",
     group: "Others",
     comingSoon: false,
-    cover: sundaySchool01,
-    fallback: sundaySchool02,
-    images: [sundaySchool01, sundaySchool02],
+    cover: DRIVE_PHOTOS.sundaySchool[0],
+    fallback: communityImg,
+    images: DRIVE_PHOTOS.sundaySchool,
     folderUrl:
       "https://drive.google.com/drive/folders/1KvEwmd0NzSOWAK863Ikcb5KDcpGymCqE",
   },
@@ -310,12 +322,18 @@ export default function JubileeAlbums() {
                       </div>
                     ) : (
                       <img
-                        className={String(album.cover).includes("drive.google.com") ? "drive-photo" : ""}
+                        className={
+                          String(album.cover).includes("drive.google.com")
+                            ? "drive-photo"
+                            : ""
+                        }
                         src={album.cover}
                         alt={album.title}
                         loading="lazy"
                         referrerPolicy="no-referrer"
-                        onError={(event) => handleImageError(event, album.fallback)}
+                        onError={(event) =>
+                          handleImageError(event, album.fallback)
+                        }
                       />
                     )}
 
@@ -327,7 +345,9 @@ export default function JubileeAlbums() {
 
                     <span className="jubilee-photo-count">
                       <Images size={15} />
-                      {album.comingSoon ? "Photos Soon" : `${album.images.length} Photos`}
+                      {album.comingSoon
+                        ? "Photos Soon"
+                        : `${album.images.length} Photos`}
                     </span>
                   </div>
 
@@ -412,7 +432,9 @@ export default function JubileeAlbums() {
                       exit={{ opacity: 0, scale: 1.015 }}
                       transition={{ duration: 0.3 }}
                       referrerPolicy="no-referrer"
-                      onError={(event) => handleImageError(event, activeAlbum.fallback)}
+                      onError={(event) =>
+                        handleImageError(event, activeAlbum.fallback)
+                      }
                     />
                   </AnimatePresence>
 
@@ -451,7 +473,9 @@ export default function JubileeAlbums() {
                           alt=""
                           loading="lazy"
                           referrerPolicy="no-referrer"
-                          onError={(event) => handleImageError(event, activeAlbum.fallback)}
+                          onError={(event) =>
+                            handleImageError(event, activeAlbum.fallback)
+                          }
                         />
                       </button>
                     ))}
